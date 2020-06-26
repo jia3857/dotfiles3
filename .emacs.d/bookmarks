@@ -1,45 +1,10 @@
-;;;; Emacs Bookmark Format Version 1 ;;;;
+;;;; Emacs Bookmark Format Version 1 ;;;; -*- coding: utf-8-emacs -*- 
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("dotfiles"
- (filename . "/ssh:jjyeh@jjyeh-dev.vpc.cloudera.com:/home/jjyeh/work/dotfiles/")
- (front-context-string . ".aliases\n  -rw-r")
- (rear-context-string . "27 Jul 11 15:42 ")
- (position . 222))
-("test_replication.py"
- (filename . "~/work/cmf.udf/systest/test_replication.py")
- (front-context-string . "\n        LOG.inf")
- (rear-context-string . "       found = 0")
- (position . 69180))
-("test_misc.py"
- (filename . "/ssh:jjyeh@jjyeh-dev.vpc.cloudera.com:/home/jjyeh/work/systest/systest/test_misc.py")
- (front-context-string . "       OLD_AGENT")
- (rear-context-string . " 1\n        fi\n\n ")
- (position . 8382))
-("systest"
- (filename . "/ssh:jjyeh@jjyeh-dev.vpc.cloudera.com:/home/jjyeh/work/systest/systest/")
- (front-context-string . "Makefile\n  -rw-r")
- (rear-context-string . "34 Jan  4 17:46 ")
- (position . 237))
-("AgentMock.java"
+(("AgentMock.java"
  (filename . "~/work/cmf/web/src/main/java/com/cloudera/server/cmf/AgentMock.java")
  (front-context-string . ") {\n      case S")
  (rear-context-string . " switch (profile")
  (position . 30072))
-("BVT.markdown"
- (filename . "/ssh:jjyeh@jjyeh-dev.vpc.cloudera.com:/home/jjyeh/work/BVT.markdown")
- (front-context-string)
- (rear-context-string)
- (position . 1))
-("deploy"
- (filename . "/ssh:jjyeh@jjyeh-dev.vpc.cloudera.com:/home/jjyeh/work/deploy/")
- (front-context-string . ".git\n  -rw-r--r-")
- (rear-context-string . "96 Jan 11 13:28 ")
- (position . 228))
-("notes.markdown"
- (filename . "/ssh:jjyeh@jjyeh-dev.vpc.cloudera.com:/home/jjyeh/work/notes.markdown")
- (front-context-string)
- (rear-context-string . "un_tests\n</pre>\n")
- (position . 4970))
 )

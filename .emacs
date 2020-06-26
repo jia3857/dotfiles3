@@ -268,9 +268,9 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (swiper helm-projectile projectile helm magit go-mode json-mode elpy)))
- '(setq-default fill-column 80)
- '(python-shell-interpreter "python3"))
+    (markdown-mode swiper helm-projectile projectile helm magit go-mode json-mode elpy)))
+ '(python-shell-interpreter "python3")
+ '(setq-default fill-column t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -175,16 +175,32 @@ fi
 
 # compile readline (libreadline.a) on Mac Mojave
 if [[ $(uname -s) == "Darwin" ]]; then
-    # Download xcode commandline tools
-    # xcode-select --install
-    # open /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg --or--
-    # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
-    # export "CFLAGS=-I/usr/local/include -L/usr/local/lib"
-    # ------------------------------------------------------------------------
-    # https://github.com/RustAudio/coreaudio-sys/issues/21
-    # sudo xcode-select -switch /
-    # find / 2> /dev/null | grep MacOSX10.14.sdk
-    export CPATH="/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include"
+    # on Mac Mojave
+    if [[ "$(sw_vers -productVersion)" =~ "10.14." ]]; then
+        # Download xcode commandline tools
+        # xcode-select --install
+        # open /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg --or--
+        # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
+        # export "CFLAGS=-I/usr/local/include -L/usr/local/lib"
+        # ------------------------------------------------------------------------
+        # https://github.com/RustAudio/coreaudio-sys/issues/21
+        # sudo xcode-select -switch /
+        # find / 2> /dev/null | grep MacOSX10.14.sdk
+        export CPATH="/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include"
+    fi
+    # on Mac Catalina
+    if [[ "$(sw_vers -productVersion)" =~ "10.15." ]]; then
+        export CFLAGS="-I/usr/local/include -L/usr/local/lib -I$(brew --prefix openssl)/include -I$(brew --prefix readline)/include -I$(xcrun --show-sdk-path)/usr/include"
+        export LDFLAGS="-L/usr/local/opt/readline/lib"
+    fi
+
+    pyenv() {
+    if [[ $1 == "install" ]]; then
+        command env SDKROOT="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk" CFLAGS="-I/usr/local/opt/openssl/include -I/usr/local/opt/readline/include -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include" CPPFLAGS="-I/usr/local/opt/zlib/include" LDFLAGS="-L/usr/local/opt/openssl/lib -L/usr/local/opt/readline/lib" pyenv install "${@:2}"
+    else
+        command pyenv "$@"
+    fi
+    }
 fi
 
 #### My handy functions ####
