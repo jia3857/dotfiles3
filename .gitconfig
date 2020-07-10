@@ -5,11 +5,9 @@
 
 # This is Git's per-user configuration file.
 [user]
-	email = jia3857@gmail.com
-	name = Jia YEH
 # Please adapt and uncomment the following lines:
-#	name = Josh YEH
-#	email = jia3857@gmail.com
+#	name = yourGithubUserNameHere
+#	email = youremail@example.com
 [apply]
   whitespace = fix
 [color]
@@ -47,6 +45,8 @@
   excludesfile = ~/.gitignore_global
   ; setting the editor fixes git commit bug http://tooky.co.uk/2010/04/08/there-was-a-problem-with-the-editor-vi-git-on-mac-os-x.html
   editor = emacs
+  autocrlf = input
+
 [alias]
   ; show merge tree + commits info
   graph = log --graph --date-order -C -M --pretty=format:\"<%h> %ad [%an] %Cgreen%d%Creset %s\" --all --date=short

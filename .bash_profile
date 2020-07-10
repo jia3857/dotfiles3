@@ -192,15 +192,27 @@ if [[ $(uname -s) == "Darwin" ]]; then
     if [[ "$(sw_vers -productVersion)" =~ "10.15." ]]; then
         export CFLAGS="-I/usr/local/include -L/usr/local/lib -I$(brew --prefix openssl)/include -I$(brew --prefix readline)/include -I$(xcrun --show-sdk-path)/usr/include"
         export LDFLAGS="-L/usr/local/opt/readline/lib"
-    fi
 
-    pyenv() {
-    if [[ $1 == "install" ]]; then
-        command env SDKROOT="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk" CFLAGS="-I/usr/local/opt/openssl/include -I/usr/local/opt/readline/include -I/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include" CPPFLAGS="-I/usr/local/opt/zlib/include" LDFLAGS="-L/usr/local/opt/openssl/lib -L/usr/local/opt/readline/lib" pyenv install "${@:2}"
-    else
-        command pyenv "$@"
+        #env CC=/usr/bin/cc SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk \
+        #  MACOSX_DEPLOYMENT_TARGET=10.15 PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install 3.8.2
+
+        # Adopted SDK workaround from @marcosgomesborges
+        [[ -n "$MACOSX_DEPLOYMENT_TARGET"  ]]  || export MACOSX_DEPLOYMENT_TARGET="$(sw_vers -productVersion | cut -c -5)"    # e.g.: 10.14
+        [[ -n "$SDKROOT" ]]                    || export SDKROOT="$(xcrun --show-sdk-path)"
+        # Workaround for OpenSSL header/library paths (for GCC & LINKER)
+        pfx_openssl="$(brew --prefix openssl)"  # Change this if openssl was not installed via homebrew
+        if [[ -d "$pfx_openssl" ]]  ; then
+            export CPATH="${pfx_openssl}/include:${CPATH}"                # Headers for C pre-processor
+            export LIBRARY_PATH="${pfx_openssl}/lib:${LIBRARY_PATH}"      # libraries (for the linker)
+        fi
+
+        # https://github.com/pyenv/pyenv/issues/1348
+        # CC=/usr/bin/cc \
+        #     SDKROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs\MacOSX10.15.sdk \
+        #     MACOSX_DEPLOYMENT_TARGET=10.15 \
+        #     PYTHON_CONFIGURE_OPTS="--enable-framework" \
+        #     pyenv install 3.8.2
     fi
-    }
 fi
 
 #### My handy functions ####
@@ -475,3 +487,5 @@ ln_relpath(){
     #ln -s $(python -c "import os.path; print os.path.relpath('$1','${2:-${1##*/}}')" ;)
     ln -s "$(python -c "import os.path; print os.path.relpath('$1','${2:-$PWD}')")" ;
 }
+export PATH="/usr/local/sbin:$PATH"
+if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
