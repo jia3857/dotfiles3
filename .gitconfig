@@ -5,6 +5,8 @@
 
 # This is Git's per-user configuration file.
 [user]
+	name = Josh YEH
+	email = jjyeh@cloudera.com
 # Please adapt and uncomment the following lines:
 #	name = yourGithubUserNameHere
 #	email = youremail@example.com

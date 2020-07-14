@@ -40,6 +40,13 @@ for option in autocd globstar; do
 	shopt -s "$option" 2> /dev/null;
 done;
 
+####
+#### Bash Tab completion
+####
+
+# Add tab completion for SSH hostnames based on ~/.ssh/config, ignoring wildcards
+complete -W "\`grep -oE '^[a-zA-Z0-9_.-]+:([^=]|$)' ?akefile | sed 's/[^a-zA-Z0-9_.-]*$//'\`" make
+
 # Add tab completion for SSH hostnames based on ~/.ssh/config, ignoring wildcards
 [ -e "$HOME/.ssh/config" ] && complete -o "default" -o "nospace" -W "$(grep "^Host" ~/.ssh/config | grep -v "[?*]" | cut -d " " -f2- | tr ' ' '\n')" scp sftp ssh;
 
