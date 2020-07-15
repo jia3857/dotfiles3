@@ -495,4 +495,4 @@ ln_relpath(){
     ln -s "$(python -c "import os.path; print os.path.relpath('$1','${2:-$PWD}')")" ;
 }
 export PATH="/usr/local/sbin:$PATH"
-if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
+
