@@ -496,3 +496,5 @@ ln_relpath(){
 }
 export PATH="/usr/local/sbin:$PATH"
 if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
+eval "$(pyenv init -)"
+
