@@ -386,6 +386,41 @@ git-prompt
 # show-handy-functions
 export PYTHONWARNINGS="ignore"
 
+#### pyenv configs
+# https://www.tecmint.com/pyenv-install-and-manage-multiple-python-versions-in-linux/
+#
+# $ git clone https://github.com/pyenv/pyenv.git $HOME/.pyenv
+# $ # Added the following code till "===="
+# $ source $HOME/.bashrc     ## -or- exec "$SHELL"
+# $ pyenv install -l         ## Find out what python version(s) to install
+# $ pyenv install 2.7.18     ## install 2.7.18
+# $ pyenv install 3.6.5      ## install 3.6.5
+# $ pyenv versions           ## Find out what version(s) had been installed
+# $ pyenv global
+
+#   # Only use specific python version on the project
+# $ mkdir -p ${PROJECT:-"python_projects/test"}; cd !$  
+# $ pyenv local 2.7.18
+
+#   # virtual environment
+# $ git clone https://github.com/yyuu/pyenv-virtualenv.git $HOME/.pyenv/plugins/pyenv-virtualenv
+# $ source $HOME/.bashrc
+# $ cd python_projects
+# $ mkdir project1
+# $ cd project1
+# $ pyenv virtualenv 3.6.5 venv_project1
+# $ pyenv activate venv_project1
+# $ pyenv deactivate
+
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+
+if command -v pyenv 1>/dev/null 2>&1; then
+  eval "$(pyenv init -)"
+fi
+# if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
+
+#### dotfiles management with ${HOME}/.dotfiles.git bare repo
 # https://medium.com/toutsbrasil/how-to-manage-your-dotfiles-with-git-f7aeed8adf8b
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME'
 export KUBECONFIG=; for file in ${HOME}/.kube/*.yaml; do export KUBECONFIG=$KUBECONFIG:$file; done

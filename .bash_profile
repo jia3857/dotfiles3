@@ -485,7 +485,7 @@ else
     mkdir -p $GOPATH
 fi
 
-# bash
+# bash function
 relpath(){
     python -c "import os.path; print os.path.relpath('$1','${2:-$PWD}')" ;
 }
@@ -495,6 +495,20 @@ ln_relpath(){
     ln -s "$(python -c "import os.path; print os.path.relpath('$1','${2:-$PWD}')")" ;
 }
 export PATH="/usr/local/sbin:$PATH"
-if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
-eval "$(pyenv init -)"
 
+#### pyenv
+# setup:
+#   (mac) $ brew update; brew install pyenv
+
+if command -v pyenv 1>/dev/null 2>&1; then
+  export PYENV_ROOT="$HOME/.pyenv"
+  export PATH="$PYENV_ROOT/bin:$PATH"
+  eval "$(pyenv init -)"
+fi
+
+# pyenv plugin: pyenv-virtualenv
+# setup:
+#   (unkonwn_os) $ git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
+if command -v pyenv virtualenv 1>/dev/null 2>&1; then
+  eval "$(pyenv virtualenv-init -)"
+fi
