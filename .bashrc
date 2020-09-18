@@ -424,3 +424,8 @@ if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -
 # https://medium.com/toutsbrasil/how-to-manage-your-dotfiles-with-git-f7aeed8adf8b
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME'
 export KUBECONFIG=; for file in ${HOME}/.kube/*.yaml; do export KUBECONFIG=$KUBECONFIG:$file; done
+
+export NVM_DIR="/home/jjyeh/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+
+[[ -s "/home/jjyeh/.gvm/scripts/gvm" ]] && source "/home/jjyeh/.gvm/scripts/gvm"
