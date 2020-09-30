@@ -5,6 +5,7 @@ export PATH="$HOME/bin:/usr/local/bin:$PATH";
 export PS1='\[\e]0;\w\a\]\n\[\e[32m\]\u@\h: \[\e[33m\]\w\[\e[0m\]\n\$ '
 
 # Bash History
+mkdir -p ${HOME}/.logs/
 export PROMPT_COMMAND='if [ "$(id -u)" -ne 0 ]; then echo "$(date "+%Y-%m-%d_%H:%M:%S") $(pwd) $(history 1)" >> ~/.logs/bash-history-$(date "+%Y-%m-%d").log; fi'
 
 # Load the shell dotfiles, and then some:
@@ -56,13 +57,6 @@ complete -W "NSGlobalDomain" defaults;
 
 # Add `killall` tab completion for common apps
 complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes SystemUIServer Terminal Twitter" killall;
-
-# NVM YARN
-export NVM_DIR="$HOME/.nvm"
-export NVM_SCRIPT="/usr/local/opt/nvm/nvm.sh"
-if [ -f $NVM_SCRIPT ]; then
-    . $NVM_SCRIPT
-fi
 
 function my_cdiff {
     colordiff -u "$@" | less -RF
@@ -245,6 +239,19 @@ fixssh() {
     fi
 }
 
+#### K8s
+#### kubectl
+# ( # setup in bash
+#   set -x; cd "$(mktemp -d)" &&
+#   curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/krew.tar.gz" &&
+#   tar zxvf krew.tar.gz &&
+#   KREW=./krew-"$(uname | tr '[:upper:]' '[:lower:]')_amd64" &&
+#   "$KREW" install krew
+# )
+if [ -d ${KREW_ROOT} ] && [ -d ${HOME}.krew ]; then
+    export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+fi
+
 # k8s debug
 _my_k8s_save_cluster() {
     local SAVE_DIR=${HOME}/clusterstate/
@@ -405,7 +412,7 @@ _my_flink_dev(){
     echo "====> Cloned https://github.infra.cloudera.com/CDH/flink"
 }
 
-# openssl
+#### openssl
 _my_openssl_dump_cert_text() {
     local cert=$1
     openssl x509 -in ${cert} -text || \
@@ -421,6 +428,7 @@ _my_openssl_save_cert(){
     echo -n | openssl s_client -connect ${HOST_FQDN}:${PORT}   | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /tmp/${HOST_FQDN}.cert
 }
 
+#### maven
 _my_maven_bash_completion() {
     local SAVE_AS=~/.bash_completion.maven
     curl -qs https://raw.githubusercontent.com/juven/maven-bash-completion/master/bash_completion.bash > ${SAVE_AS}
@@ -453,7 +461,7 @@ EOF
     fi
 }
 
-# JAVA
+#### JAVA
 alias java_ls='/usr/libexec/java_home -V 2>&1 | cut -s -d , -f 1 | cut -c 5-'
 function java_use() {
     export JAVA_HOME=$(/usr/libexec/java_home -v $1)
@@ -461,7 +469,7 @@ function java_use() {
 }
 
 
-# Docker
+#### Docker
 _my_docker_jmeter() {
     local volume_path=${1:-"workspace/src/github.com/jia3857/jmeter-scripts/jmx"}
     export timestamp=$(date +%Y%m%d_%H%M%S) && \
@@ -475,14 +483,14 @@ _my_docker_jmeter() {
       -l ${jmeter_path}/tmp/result_${timestamp}.jtl \
       -j ${jmeter_path}/tmp/jmeter_${timestamp}.log
 }
-# Go
-if [ -d $HOME/go ] ; then
-    export GOPATH=$HOME/go
-    export PATH=$GOPATH/bin:$PATH
-else
-    export PATH=$PATH:$(go env GOPATH)/bin
-    export GOPATH=$(go env GOPATH)
-    mkdir -p $GOPATH
+
+#### Go
+# bash < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer) \
+#       && echo "source /home/$USERNAME/.gvm/scripts/gvm" >> ~/.bashrc && source ~/.bashrc \
+#       && gvm install go1.4 -B && gvm use go1.4 --default \
+#       && gvm install go1.14.4 && gvm use go 1.14.4 --default
+if [ -f /home/$USERNAME/.gvm/scripts/gvm ]; then
+    source /home/$USERNAME/.gvm/scripts/gvm
 fi
 
 # bash function
@@ -512,3 +520,12 @@ fi
 if command -v pyenv virtualenv 1>/dev/null 2>&1; then
   eval "$(pyenv virtualenv-init -)"
 fi
+
+export PATH="/usr/local/opt/helm@2/bin:$PATH"
+
+#### NVM - Nodejs Version Manager
+# curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.36.0/install.sh | bash
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+
+[[ -s "/Users/jjyeh/.gvm/scripts/gvm" ]] && source "/Users/jjyeh/.gvm/scripts/gvm"
