@@ -1,3 +1,4 @@
+
 # filename: ~/.bashrc
 #
 #
@@ -34,7 +35,15 @@ alias nocomment='egrep -v "^\s*(#|$)"'
 alias youtube-dl-playlist="youtube-dl --continue --no-overwrites --ignore-errors --output '%(playlist)s/%(playlist_index)s- %(title)s.%(ext)s'"
 alias youtube-dl-mp3='youtube-dl -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0  --add-metadata'
 
-function youtube-dl-x {
+_my_codec() {
+    local BIN="ffprobe2"
+    [ ! command -v ${BIN} &> /dev/null ] && echo "Please install ffprobe" && return 1
+    [ -z "$1" ] && echo "Please provide <file name> as the first arguemnt" && return 1
+    [ ! -f "$1" ] && echo "$1 doesn't exist" && return 1
+    ffprobe "$1" 2>&1 >/dev/null | grep Stream.*Video | sed -e 's/.*Video: //' -e 's/[, ].*//'
+}
+
+function youtube-dl-at {
     local url=$1
     youtube-dl -x --postprocessor-args "-ss 00:12:44.00 -t 00:01:33.00" $url
 }
@@ -434,3 +443,4 @@ export NVM_DIR="/home/jjyeh/.nvm"
 # okta
 source "${HOME}/.bashrc_aws-okta"
 
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

@@ -12,7 +12,7 @@
 (cond
  ((>= emacs-major-version 25)
   (require 'package)
-  (package-initialize)
+  ;(package-initialize)
   (add-to-list 'package-archives
            '("melpa-stable" . "http://stable.melpa.org/packages/") t)
   (package-refresh-contents)
