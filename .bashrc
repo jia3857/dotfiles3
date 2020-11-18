@@ -409,7 +409,7 @@ export PYTHONWARNINGS="ignore"
 # $ pyenv global
 
 #   # Only use specific python version on the project
-# $ mkdir -p ${PROJECT:-"python_projects/test"}; cd !$  
+# $ mkdir -p ${PROJECT:-"python_projects/test"}; cd !$
 # $ pyenv local 2.7.18
 
 #   # virtual environment
@@ -430,6 +430,46 @@ if command -v pyenv 1>/dev/null 2>&1; then
 fi
 if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
 
+####
+#### ssh-agent management
+####
+if [ $(ps ax | grep [s]sh-agent | wc -l) -gt 0 ] ; then
+    echo "ssh-agent is already running"
+else
+    eval $(ssh-agent -s)
+    if [ "$(ssh-add -l)" == "The agent has no identities." ] ; then
+        ssh-add ~/.ssh/*id_rsa
+    fi
+
+    # Don't leave extra agents around: kill it on exit. You may not want this part.
+    trap "ssh-agent -k" exit
+fi
+
+# Ensure agent is running
+ssh-add -l &>/dev/null
+if [ "$?" == 2 ]; then
+    # Could not open a connection to your authentication agent.
+
+    # Load stored agent connection info.
+    test -r ~/.ssh-agent && \
+        eval "$(<~/.ssh-agent)" >/dev/null
+
+    ssh-add -l &>/dev/null
+    if [ "$?" == 2 ]; then
+        # Start agent and store agent connection info.
+        (umask 066; ssh-agent > ~/.ssh-agent)
+        eval "$(<~/.ssh-agent)" >/dev/null
+    fi
+fi
+
+# Load identities
+ssh-add -l &>/dev/null
+if [ "$?" == 1 ]; then
+    # The agent has no identities.
+    # Time to add one.
+    ssh-add -t 4h ~/.ssh/*id_rsa
+fi
+
 #### dotfiles management with ${HOME}/.dotfiles.git bare repo
 # https://medium.com/toutsbrasil/how-to-manage-your-dotfiles-with-git-f7aeed8adf8b
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME'
@@ -441,6 +481,9 @@ export NVM_DIR="/home/jjyeh/.nvm"
 [[ -s "/home/jjyeh/.gvm/scripts/gvm" ]] && source "/home/jjyeh/.gvm/scripts/gvm"
 
 # okta
-source "${HOME}/.bashrc_aws-okta"
+if [ -f ${HOME}/.bashrc_aws-okta ]; then
+    echo "sourcing ${HOME}/.bashrc_aws-okta..."
+    source "${HOME}/.bashrc_aws-okta"
+fi
 
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
