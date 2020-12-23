@@ -1,3 +1,11 @@
+# $HOME/.bash_profile
+# 
+# $HOME/.bash_profile is executed for 
+#   - login shells,  
+#   - can never be sourced again in child process, eg: environment variable
+# while $HOME/.bashrc is executed for 
+#   - interactive non-login shells.
+
 # Add `~/bin` to the `$PATH`
 export PATH="$HOME/bin:/usr/local/bin:$PATH";
 
@@ -5,7 +13,7 @@ export PATH="$HOME/bin:/usr/local/bin:$PATH";
 export PS1='\[\e]0;\w\a\]\n\[\e[32m\]\u@\h: \[\e[33m\]\w\[\e[0m\]\n\$ '
 
 # Bash History
-mkdir -p ${HOME}/.logs/
+[ ! -d ${HOME}/.logs/ ] && mkdir -pv ${HOME}/.logs/
 export PROMPT_COMMAND='if [ "$(id -u)" -ne 0 ]; then echo "$(date "+%Y-%m-%d_%H:%M:%S") $(pwd) $(history 1)" >> ~/.logs/bash-history-$(date "+%Y-%m-%d").log; fi'
 
 # Load the shell dotfiles, and then some:
@@ -14,16 +22,18 @@ export PROMPT_COMMAND='if [ "$(id -u)" -ne 0 ]; then echo "$(date "+%Y-%m-%d_%H:
 for file in ~/.{path,exports,aliases,functions,extra}; do
     [ -f $file ] && echo "source $file" && source $file;
 done
-for file in ~/.{path,exports,aliases,functions,extra}; do
-    if \curl -I -s -L https://raw.githubusercontent.com/jia3857/dotfiles/master/${file##*/} | head -1 | grep "HTTP/1.1 404 Not Found" 2>&1 1> /dev/null ; then
-        # continue
-        break
-    else
-        \curl -I -s -L https://raw.githubusercontent.com/jia3857/dotfiles/master/${file##*/}
-        [ $? -eq 0 ] && [ -r "$file" ] && [ -f "$file" ] && source "$file";
-    fi
-done;
-unset file;
+_my_update_dotrcs() {
+    for file in ~/.{path,exports,aliases,functions,extra}; do
+        if \curl -I -s -L https://raw.githubusercontent.com/jia3857/dotfiles/master/${file##*/} | head -1 | grep "HTTP/1.1 404 Not Found" 2>&1 1> /dev/null ; then
+            # continue
+            break
+        else
+            \curl -I -s -L https://raw.githubusercontent.com/jia3857/dotfiles/master/${file##*/}
+            [ $? -eq 0 ] && [ -r "$file" ] && [ -f "$file" ] && source "$file";
+        fi
+    done;
+    unset file;
+}
 
 # Case-insensitive globbing (used in pathname expansion)
 shopt -s nocaseglob;
@@ -114,10 +124,10 @@ fi
 if hash git 2> /dev/null; then
     if [ $(uname -s) = "Darwin" ]; then
         [ ! -f /usr/local/share/bash-completion/bash_completion ] \
-            && [ $BASH_VERSION > 4 ] && brew install bash-completion@2
-        . /usr/local/share/bash-completion/bash_completion
+            && [[ $BASH_VERSIONINFO -gt 4 ]] && brew install bash-completion@2
+        . /usr/local/share/bash-completion/bash_completion || true
     fi
-    source <(curl -qs https://raw.githubusercontent.com/git/git/v2.17.1/contrib/completion/git-completion.bash)
+    source <(curl -Lqs https://raw.githubusercontent.com/git/git/v2.17.1/contrib/completion/git-completion.bash) && \
     echo "[git] bash completion loaded"
 fi
 # git grep + blame
@@ -139,7 +149,7 @@ awsls () {
   aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId,State.Name,InstanceType,PrivateIpAddress,PublicIpAddress,Tags[?Key==`Name`].Value[]]' --output json | tr -d '\n[] "' | perl -pe 's/i-/\ni-/g' | tr ',' '\t' | sed -e 's/null/None/g' | grep '^i-' | column -t
 }
 
-if hash aws_completer; then
+if hash aws_completer 2> /dev/null; then
     complete -C $(which aws_completer) aws
 fi
 
@@ -521,11 +531,21 @@ if command -v pyenv virtualenv 1>/dev/null 2>&1; then
   eval "$(pyenv virtualenv-init -)"
 fi
 
-export PATH="/usr/local/opt/helm@2/bin:$PATH"
-
 #### NVM - Nodejs Version Manager
 # curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.36.0/install.sh | bash
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
-[[ -s "/Users/jjyeh/.gvm/scripts/gvm" ]] && source "/Users/jjyeh/.gvm/scripts/gvm"
+[[ -s "${HOME}/.gvm/scripts/gvm" ]] && source "${HOME}/.gvm/scripts/gvm"
+
+
+#### java version management
+export JAVA_8_HOME=$(/usr/libexec/java_home -v1.8)
+export JAVA_11_HOME=$(/usr/libexec/java_home -v11)
+
+alias java8='export JAVA_HOME=$JAVA_8_HOME'
+alias java11='export JAVA_HOME=$JAVA_11_HOME'
+
+# default to Java 11
+java11
+[[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"

@@ -18,7 +18,6 @@ trap 'printf "\e[0m" "$_"' DEBUG
 if [ "$(uname -s)" == "Darwin" ]; then
     # Do something under Mac OS X platform
     export PATH="/usr/local/Cellar/mysql/5.7.12/bin:$PATH"
-    # export PYTHONPATH="/Library/Python/2.7/site-packages:$PYTHONPATH"
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     # Do something under GNU/Linux platform
     _OS="linux"
@@ -28,7 +27,7 @@ elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then
 fi
 
 ## Nice handy bash function
-rtfm() { $@ --help 2> /dev/null || man $@ 2> /dev/null || open "http://www.google.com/search?q=$@"; }
+rtfm() { $@ --help 2>/dev/null || man $@ 2>/dev/null || open "http://www.google.com/search?q=$@"; }
 alias pass="cat /dev/urandom| tr -dc 'a-zA-Z0-9' | fold -w 10| head -n 4"
 alias passlong="cat /dev/urandom| tr -dc 'a-zA-Z0-9' | fold -w 18| head -n 4"
 alias nocomment='egrep -v "^\s*(#|$)"'
@@ -55,9 +54,10 @@ function sshc() {
 function my-etags() {
     set -x
     if [ -n "$1" ]; then
-	base=$1; shift
+        base=$1
+        shift
     else
-	base=$PWD
+        base=$PWD
     fi
     find "$base" -name '*.py' -o -name '*.c' -o -name '*.cpp' -o -name '*.h' | xargs etags -o "$base/TAGS"
     set +x
@@ -65,11 +65,11 @@ function my-etags() {
 
 # git prompt and git autocomplete
 function _git_autocomplete() {
-  [ -f /usr/share/git/completion/git-prompt.sh ] && source /usr/share/git/completion/git-prompt.sh
+    [ -f /usr/share/git/completion/git-prompt.sh ] && source /usr/share/git/completion/git-prompt.sh
 
-  if [ -f $(brew --prefix)/etc/bash_completion ]; then
-    . $(brew --prefix)/etc/bash_completion
-  fi
+    if [ -f $(brew --prefix)/etc/bash_completion ]; then
+        . $(brew --prefix)/etc/bash_completion
+    fi
 }
 
 # hadoop autocomplete
@@ -77,24 +77,24 @@ function _hadoop_autocomplete() {
     local SRC="https://raw.githubusercontent.com/guozheng/hadoop-completion/master/hadoop-completion.sh"
     local TARGET=~/bin/bash_completion.d
     if [ ! -d ${TARGET} ]; then
-	mkdir -p ${TARGET}
+        mkdir -p ${TARGET}
     fi
     curl ${SRC} -so ${TARGET}/hadoop-completion.sh && chmod +x ${TARGET}/hadoop-completion.sh
     source ${TARGET}/hadoop-completion.sh
 }
 _hadoop_autocomplete
 
-function _cloudera_scm_info {
+function _cloudera_scm_info() {
     files=("/usr/share/cmf/cloudera/cm_version.properties")
     for f in "${files[@]}"; do
-	if [ -f $f ]; then
-	    echo ==== $f ====
-	    cat $f
-	fi
+        if [ -f $f ]; then
+            echo ==== $f ====
+            cat $f
+        fi
     done
 }
 
-function _scm_info(){
+function _scm_info() {
     grep '^version=' /usr/share/cmf/cloudera/cm_version.properties
 }
 
@@ -108,24 +108,25 @@ colors() {
 
     # foreground colors
     for fgc in {30..37}; do
-	# background colors
-	for bgc in {40..47}; do
-	    fgc=${fgc#37} # white
-	    bgc=${bgc#40} # black
+        # background colors
+        for bgc in {40..47}; do
+            fgc=${fgc#37} # white
+            bgc=${bgc#40} # black
 
-	    vals="${fgc:+$fgc;}${bgc}"
-	    vals=${vals%%;}
+            vals="${fgc:+$fgc;}${bgc}"
+            vals=${vals%%;}
 
-	    seq0="${vals:+\e[${vals}m}"
-	    printf "  %-9s" "${seq0:-(default)}"
-	    printf " ${seq0}TEXT\e[m"
-	    printf " \e[${vals:+${vals+$vals;}}1mBOLD\e[m"
-	    done
-	echo; echo
-	done
+            seq0="${vals:+\e[${vals}m}"
+            printf "  %-9s" "${seq0:-(default)}"
+            printf " ${seq0}TEXT\e[m"
+            printf " \e[${vals:+${vals+$vals;}}1mBOLD\e[m"
+        done
+        echo
+        echo
+    done
 }
 
-set_prompt () {
+set_prompt() {
     Last_Command=$? # Must come first!
     Blue='\[\e[01;34m\]'
     White='\[\e[01;37m\]'
@@ -157,7 +158,6 @@ set_prompt () {
 }
 # PROMPT_COMMAND='set_prompt'
 
-
 ####
 #### cloudera
 ####
@@ -173,19 +173,19 @@ _cdep_list_group() {
     declare -a cloud=("EC2" "GCE" "AZURE")
 
     for c in "${cloud[@]}"; do
-	echo ">>>> cloud-type: $cloud"
-	cmd="./infrastructure/cloudcat.py --username=jjyeh list_groups --cloud-type=$c"
-	if [[ x"" != x"$USER" ]]; then
-	    cmd+=" --user=${USER}"
-	fi
-	echo ">>>> $cmd "
-	$cmd
+        echo ">>>> cloud-type: $cloud"
+        cmd="./infrastructure/cloudcat.py --username=jjyeh list_groups --cloud-type=$c"
+        if [[ x"" != x"$USER" ]]; then
+            cmd+=" --user=${USER}"
+        fi
+        echo ">>>> $cmd "
+        $cmd
     done
     popd
 }
 
 _find_java() {
-    JPATH=$(dirname `find /usr|grep -E jps$`)
+    JPATH=$(dirname $(find /usr | grep -E jps$))
     echo "JAVA BIN PATH: $JPATH"
     export PATH=$JPATH:$PATH
 }
@@ -208,7 +208,7 @@ _cdep_provision() {
     export HOSTS=$1
     #cd ~/work/systest/systest
     cd ~/work/deploy/cdep
-    ./infrastructure/cloudcat.py --username=`whoami` list_groups
+    ./infrastructure/cloudcat.py --username=$(whoami) list_groups
     set -x
     ./infrastructure/cloudcat.py --hosts="$HOSTS" --os=centos71 --expiration-days=0 --expiration-hours=32 --username=jjyeh --master-size=2xlarge --slave-size=large create_group
     set +x
@@ -218,14 +218,14 @@ _cdep_destroy() {
     local HOSTS=$@
     [[ -z ${HOSTS} ]] && echo "need 'jjyeh-s12-{1..4}.vpc.cloudera.com' as argument"
     cd ~/work/deploy/cdep
-    ./infrastructure/cloudcat.py  --username=jjyeh --hosts="$HOSTS" destroy_group
+    ./infrastructure/cloudcat.py --username=jjyeh --hosts="$HOSTS" destroy_group
 }
 
 _cdep_resume() {
     local HOSTS=$@
     [[ -z ${HOSTS} ]] && echo "need 'jjyeh-s12-{1..4}.vpc.cloudera.com' as argument"
     cd ~/work/deploy/cdep
-    ./infrastructure/cloudcat.py  --username=jjyeh --hosts="$HOSTS" resume_group
+    ./infrastructure/cloudcat.py --username=jjyeh --hosts="$HOSTS" resume_group
 }
 
 _cdep_extend() {
@@ -233,7 +233,7 @@ _cdep_extend() {
     local USER=$2
     [[ -z ${HOSTS} ]] && echo "need 'jjyeh-s12-{1..4}.vpc.cloudera.com' as argument"
     cd ~/work/deploy/cdep
-    ./infrastructure/cloudcat.py  --hosts=${HOSTS} --username=${USER} --expiration-days=1 extend_group
+    ./infrastructure/cloudcat.py --hosts=${HOSTS} --username=${USER} --expiration-days=1 extend_group
 }
 _cdep_sysadmin() {
     [ -z $1 ] && echo "ERROR: NO \$HOSTS defined" && return 1
@@ -262,36 +262,33 @@ _hadoop_benchmark() {
     HADOOP_PATH=/opt/cloudera/parcels/CDH/lib/hadoop-0.20-mapreduce
     RESULTS_D=/results
     if [ ! -d $HADOOP_PATH ]; then
-	echo "no HADOOP DIR: $/opt/cloudera/parcels/CDH/lib/hadoop-0.20-mapreduce"
-	return 1
+        echo "no HADOOP DIR: $/opt/cloudera/parcels/CDH/lib/hadoop-0.20-mapreduce"
+        return 1
     fi
 
     if [ ! -d $RESULTS_D ]; then
-	echo "no RESULTS DIR: $RESULTS_D"
-	mkdir -p $RESULTS_D
+        echo "no RESULTS DIR: $RESULTS_D"
+        mkdir -p $RESULTS_D
     fi
 
-    for i in 2 4 8 16 32 64 # Number of mapper containers to test
-    do
-        for j in 2 4 8 16 32 64 # Number of reducer containers to test
-        do
-            for k in 1024 2048 # Container memory for mappers/reducers to test
-            do
-		echo "==== test ==== i: $i, j: $j, k: $k"
-                MAP_MB=`echo "($k*0.8)/1" | bc` # JVM heap size for mappers
-                RED_MB=`echo "($k*0.8)/1" | bc` # JVM heap size for reducers
+    for i in 2 4 8 16 32 64; do     # Number of mapper containers to test
+        for j in 2 4 8 16 32 64; do # Number of reducer containers to test
+            for k in 1024 2048; do  # Container memory for mappers/reducers to test
+                echo "==== test ==== i: $i, j: $j, k: $k"
+                MAP_MB=$(echo "($k*0.8)/1" | bc) # JVM heap size for mappers
+                RED_MB=$(echo "($k*0.8)/1" | bc) # JVM heap size for reducers
                 hadoop jar $HADOOP_PATH/hadoop-examples.jar teragen \
-                -Dmapreduce.job.maps=$i -Dmapreduce.map.memory.mb=$k \
-                -Dmapreduce.map.java.opts.max.heap=$MAP_MB 100000000 \
-                $RESULTS_D/tg-10GB-${i}-${j}-${k} 1>$RESULTS_D/tera_${i}_${j}_${k}.out 2>$RESULTS_D/tera_${i}_${j}_${k}.err
+                    -Dmapreduce.job.maps=$i -Dmapreduce.map.memory.mb=$k \
+                    -Dmapreduce.map.java.opts.max.heap=$MAP_MB 100000000 \
+                    $RESULTS_D/tg-10GB-${i}-${j}-${k} 1>$RESULTS_D/tera_${i}_${j}_${k}.out 2>$RESULTS_D/tera_${i}_${j}_${k}.err
 
-    	        hadoop jar $HADOOP_PATH/hadoop-examples.jar terasort \
-                -Dmapreduce.job.maps=$i -Dmapreduce.job.reduces=$j -Dmapreduce.map.memory.mb=$k \
-                -Dmapreduce.map.java.opts.max.heap=$MAP_MB -Dmapreduce.reduce.memory.mb=$k \
-                -Dmapreduce.reduce.java.opts.max.heap=$RED_MB $$RESULTS_D/ts-10GB-${i}-${j}-${k} \
-                1>>$RESULTS_D/tera_${i}_${j}_${k}.out 2>>$RESULTS_D/tera_${i}_${j}_${k}.err
+                hadoop jar $HADOOP_PATH/hadoop-examples.jar terasort \
+                    -Dmapreduce.job.maps=$i -Dmapreduce.job.reduces=$j -Dmapreduce.map.memory.mb=$k \
+                    -Dmapreduce.map.java.opts.max.heap=$MAP_MB -Dmapreduce.reduce.memory.mb=$k \
+                    -Dmapreduce.reduce.java.opts.max.heap=$RED_MB $$RESULTS_D/ts-10GB-${i}-${j}-${k} \
+                    1>>$RESULTS_D/tera_${i}_${j}_${k}.out 2>>$RESULTS_D/tera_${i}_${j}_${k}.err
 
-	        hadoop fs -rmr -skipTrash $RESULTS_D/tg-10GB-${i}-${j}-${k}
+                hadoop fs -rmr -skipTrash $RESULTS_D/tg-10GB-${i}-${j}-${k}
                 hadoop fs -rmr -skipTrash $RESULTS_D/ts-10GB-${i}-${j}-${k}
             done
         done
@@ -301,14 +298,14 @@ _hadoop_benchmark() {
 _docker_search() {
     WS=~/WORK
     if [ -z $1 ]; then
-	return 1
+        return 1
     fi
     [[ ! -d $WS ]] && mkdir $WS
     echo "search strings: $@"
     pushd .
     cd $WS
     if [ ! -d docker_registry_cli ]; then
-	git clone https://github.com/vivekjuneja/docker_registry_cli
+        git clone https://github.com/vivekjuneja/docker_registry_cli
     fi
     cd docker_registry_cli
     # python browser.py docker-registry.infra.cloudera.com list all ssl
@@ -319,7 +316,10 @@ _docker_search() {
 git-prompt1() {
     file_location="~/git-prompt.sh"
     rm -f ${file_location}
-    (cd ~; wget -q https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh)
+    (
+        cd ~
+        wget -q https://raw.githubusercontent.com/git/git/master/contrib/completion/git-prompt.sh
+    )
     source ~/git-prompt.sh
     #PROMPT_COMMAND='__git_ps1 "\u@\h:\w" "\\\$ "'
     PROMPT_COMMAND='__git_ps1 "\u@\h:\w ($?)" "\n\\\$ "'
@@ -329,12 +329,34 @@ git-prompt2() {
     GIT_BIN=$(which git 2>/dev/null)
     if [ ! -f ${GIT_BIN} ]; then
         log $wrn_lvl "!!!! no git installed"
-	return 1
+        return 1
     fi
     if [ ! -d $HOME/.bash-git-prompt ]; then
-	rm -rf ~/.bash-git-prompt/
-	(cd ~; git clone https://github.com/magicmonty/bash-git-prompt .bash-git-prompt --depth=1)
+        rm -rf ~/.bash-git-prompt/
+        git clone https://github.com/magicmonty/bash-git-prompt ~/.bash-git-prompt --depth=1
     fi
+    # Set config variables first
+    GIT_PROMPT_ONLY_IN_REPO=1
+
+    # GIT_PROMPT_FETCH_REMOTE_STATUS=0   # uncomment to avoid fetching remote status
+    # GIT_PROMPT_IGNORE_SUBMODULES=1 # uncomment to avoid searching for changed files in submodules
+    # GIT_PROMPT_WITH_VIRTUAL_ENV=0 # uncomment to avoid setting virtual environment infos for node/python/conda environments
+
+    # GIT_PROMPT_SHOW_UPSTREAM=1 # uncomment to show upstream tracking branch
+    # GIT_PROMPT_SHOW_UNTRACKED_FILES=normal # can be no, normal or all; determines counting of untracked files
+
+    # GIT_PROMPT_SHOW_CHANGED_FILES_COUNT=0 # uncomment to avoid printing the number of changed files
+
+    # GIT_PROMPT_STATUS_COMMAND=gitstatus_pre-1.7.10.sh # uncomment to support Git older than 1.7.10
+
+    # GIT_PROMPT_START=...    # uncomment for custom prompt start sequence
+    # GIT_PROMPT_END=...      # uncomment for custom prompt end sequence
+
+    # as last entry source the gitprompt script
+    # GIT_PROMPT_THEME=Custom # use custom theme specified in file GIT_PROMPT_THEME_FILE (default ~/.git-prompt-colors.sh)
+    # GIT_PROMPT_THEME_FILE=~/.git-prompt-colors.sh
+    # GIT_PROMPT_THEME=Solarized # use theme optimized for solarized color scheme
+    source ~/.bash-git-prompt/gitprompt.sh
     export GIT_PROMPT_THEME="Custom"
     source ~/.bash-git-prompt/gitprompt.sh
     export GIT_PROMPT_ONLY_IN_REPO=1
@@ -343,96 +365,21 @@ git-prompt2() {
     GIT_PROMPT_THEME="Custom"
 }
 
-function prompt_callback {
-    if [ `jobs | wc -l` -ne 0 ]; then
+function prompt_callback() {
+    if [ $(jobs | wc -l) -ne 0 ]; then
         echo -n " jobs:\j"
     fi
 }
 
-#!/bin/bash
-
-##
-## Simple logging mechanism for Bash
-##
-## Author: Michael Wayne Goodman <goodman.m.w@gmail.com>
-## Thanks: Jul for the idea to add a datestring. See:
-## http://www.goodmami.org/2011/07/simple-logging-in-bash-scripts/#comment-5854
-## Thanks: @gffhcks for noting that inf() and debug() should be swapped,
-##         and that critical() used $2 instead of $1
-##
-## License: Public domain; do as you wish
-##
-
-exec 3>&2 # logging stream (file descriptor 3) defaults to STDERR
-verbosity=3 # default to show warnings
-silent_lvl=0
-crt_lvl=1
-err_lvl=2
-wrn_lvl=3
-inf_lvl=4
-dbg_lvl=5
-
-notify() { log $silent_lvl "NOTE: $1"; } # Always prints
-critical() { log $crt_lvl "CRITICAL: $1"; }
-error() { log $err_lvl "ERROR: $1"; }
-warn() { log $wrn_lvl "WARNING: $1"; }
-inf() { log $inf_lvl "INFO: $1"; } # "info" is already a command
-debug() { log $dbg_lvl "DEBUG: $1"; }
-log() {
-    if [ $verbosity -ge $1 ]; then
-        datestring=`date +'%Y-%m-%d %H:%M:%S'`
-        # Expand escaped characters, wrap at 70 chars, indent wrapped lines
-        echo -e "    $datestring $2" | fold -w70 -s | sed '2~1s/^/  /' >&3
-    fi
-}
-
-show-handy-functions() {
+_my-show-handy-functions() {
     set | egrep '^[_a-zA-Z].+\ \(\)'
 }
 
 #alias git-prompt=git-prompt1
 alias git-prompt=git-prompt2
 git-prompt
-# show-handy-functions
-export PYTHONWARNINGS="ignore"
 
-#### pyenv configs
-# https://www.tecmint.com/pyenv-install-and-manage-multiple-python-versions-in-linux/
-#
-# $ git clone https://github.com/pyenv/pyenv.git $HOME/.pyenv
-# $ # Added the following code till "===="
-# $ source $HOME/.bashrc     ## -or- exec "$SHELL"
-# $ pyenv install -l         ## Find out what python version(s) to install
-# $ pyenv install 2.7.18     ## install 2.7.18
-# $ pyenv install 3.6.5      ## install 3.6.5
-# $ pyenv versions           ## Find out what version(s) had been installed
-# $ pyenv global
-
-#   # Only use specific python version on the project
-# $ mkdir -p ${PROJECT:-"python_projects/test"}; cd !$
-# $ pyenv local 2.7.18
-
-#   # virtual environment
-# $ git clone https://github.com/yyuu/pyenv-virtualenv.git $HOME/.pyenv/plugins/pyenv-virtualenv
-# $ source $HOME/.bashrc
-# $ cd python_projects
-# $ mkdir project1
-# $ cd project1
-# $ pyenv virtualenv 3.6.5 venv_project1
-# $ pyenv activate venv_project1
-# $ pyenv deactivate
-
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-
-if command -v pyenv 1>/dev/null 2>&1; then
-  eval "$(pyenv init -)"
-fi
-if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
-
-####
-#### ssh-agent management
-####
+#### ssh-agent key forward management
 if [ $(ps ax | grep [s]sh-agent | wc -l) -gt 0 ] ; then
     echo "ssh-agent is already running"
 else
@@ -471,14 +418,13 @@ if [ "$?" == 1 ]; then
 fi
 
 #### dotfiles management with ${HOME}/.dotfiles.git bare repo
-# https://medium.com/toutsbrasil/how-to-manage-your-dotfiles-with-git-f7aeed8adf8b
+## https://medium.com/toutsbrasil/how-to-manage-your-dotfiles-with-git-f7aeed8adf8b
+## 1. setup
+## git clone --bare https://github.com/$USERNAME/dotfiles.git $HOME/.dotfiles
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME'
-export KUBECONFIG=; for file in ${HOME}/.kube/*.yaml; do export KUBECONFIG=$KUBECONFIG:$file; done
 
-export NVM_DIR="/home/jjyeh/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-
-[[ -s "/home/jjyeh/.gvm/scripts/gvm" ]] && source "/home/jjyeh/.gvm/scripts/gvm"
+export KUBECONFIG=
+for file in ${HOME}/.kube/*.yaml; do export KUBECONFIG=$KUBECONFIG:$file; done
 
 # okta
 if [ -f ${HOME}/.bashrc_aws-okta ]; then
@@ -487,3 +433,71 @@ if [ -f ${HOME}/.bashrc_aws-okta ]; then
 fi
 
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+#### PYTHON version management 
+# https://www.tecmint.com/pyenv-install-and-manage-multiple-python-versions-in-linux/
+#
+# $ git clone https://github.com/pyenv/pyenv.git $HOME/.pyenv
+# $ # Added the following code till "===="
+# $ source $HOME/.bashrc     ## -or- exec "$SHELL"
+# $ pyenv install -l         ## Find out what python version(s) to install
+# $ pyenv install 2.7.18     ## install 2.7.18
+# $ pyenv install 3.6.5      ## install 3.6.5
+# $ pyenv versions           ## Find out what version(s) had been installed
+# $ pyenv global
+
+#   # Only use specific python version on the project
+# $ mkdir -p ${PROJECT:-"python_projects/test"}; cd !$
+# $ pyenv local 2.7.18
+
+#   # virtual environment
+# $ git clone https://github.com/yyuu/pyenv-virtualenv.git $HOME/.pyenv/plugins/pyenv-virtualenv
+# $ source $HOME/.bashrc
+# $ cd python_projects
+# $ mkdir project1
+# $ cd project1
+# $ pyenv virtualenv 3.6.5 venv_project1
+# $ pyenv activate venv_project1
+# $ pyenv deactivate
+
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+
+if command -v pyenv 1>/dev/null 2>&1; then
+    echo "Python versions management - pyenv"
+    eval "$(pyenv init -)"
+fi
+if which pyenv-virtualenv-init >/dev/null; then eval "$(pyenv virtualenv-init -)"; fi
+
+
+#### Node versions management
+export NVM_DIR="${HOME}/.nvm"
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+    echo "NodeJS versions management - nvm"
+
+    \. "$NVM_DIR/nvm.sh" # This loads nvm
+fi
+
+#### Golang version management
+if [[ -s "${HOME}/.gvm/scripts/gvm" ]]; then
+    echo "Golang versions management - gvm"
+    source "${HOME}/.gvm/scripts/gvm"
+fi
+
+#### JAVA versions management
+echo "Java versions management - jenv"
+## 1. brew install jenv
+export PATH="$HOME/.jenv/bin:$PATH"
+eval "$(jenv init -)"
+## 2. add the Java versions to jEnv
+## $ brew install --cask zulu7                          # java7
+## $ brew install adoptopenjdk/openjdk/adoptopenjdk8    # java8
+## $ /usr/libexec/java_home -V                          # List installed versions
+## $ jenv add /Library/Java/JavaVirtualMachines/zulu-7.jdk/Contents/Home
+## $ jenv add /Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home
+## $ jenv add /Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home
+## $ jenv add /Library/Java/JavaVirtualMachines/adoptopenjdk-14.jdk/Contents/Home
+
+## 3: configure maven to work with the Java version specified by jEnv
+## $ echo 'JAVA_HOME=$(/usr/libexec/java_home -v $(jenv version-name))' >> ~/.mavenrc
+## $ source ~/.mavenrc

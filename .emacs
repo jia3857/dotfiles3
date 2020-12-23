@@ -186,21 +186,61 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; Color-theme
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(add-to-list 'load-path "~/.emacs.d/lisp/")
-(defun plist-to-alist (the-plist)
-  (defun get-tuple-from-plist (the-plist)
-    (when the-plist
-      (cons (car the-plist) (cadr the-plist))))
-  (let ((alist '()))
-    (while the-plist
-      (add-to-list 'alist (get-tuple-from-plist the-plist))
-      (setq the-plist (cddr the-plist)))
-    alist))
-(when (locate-library "color-theme.el")
-  (require 'color-theme)
-  (setq color-theme-is-global t)
-  ;(color-theme-tty-dark)
-  (color-theme-clarity))
+
+(when (<= emacs-major-version 25)
+  (add-to-list 'load-path "~/.emacs.d/lisp/")
+  (defun plist-to-alist (the-plist)
+    (defun get-tuple-from-plist (the-plist)
+      (when the-plist
+        (cons (car the-plist) (cadr the-plist))))
+    (let ((alist '()))
+      (while the-plist
+        (add-to-list 'alist (get-tuple-from-plist the-plist))
+        (setq the-plist (cddr the-plist)))
+      alist))
+  (when (locate-library "color-theme.el")
+    (require 'color-theme)
+    (setq color-theme-is-global t)
+    ;(color-theme-tty-dark)
+    (color-theme-clarity)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; java
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package company
+  :init
+  (setq company-idle-delay nil  ; avoid auto completion popup, use TAB
+                                ; to show it
+        company-tooltip-align-annotations t)
+  :hook (after-init . global-company-mode)
+  :bind
+  (:map prog-mode-map
+        ("C-i" . company-indent-or-complete-common)
+        ("C-M-i" . counsel-company)))
+
+(unless (require 'use-package nil t)
+  (if (not (yes-or-no-p (concat "Refresh packages, install use-package and"
+                                " other packages used by init file? ")))
+      (error "you need to install use-package first")
+    (package-refresh-contents)
+    (package-install 'use-package)
+    (require 'use-package)
+    (setq use-package-always-ensure t)))
+
+(use-package lsp-mode
+  :commands lsp
+  ;; reformat code and add missing (or remove old) imports
+  :hook ((before-save . lsp-format-buffer)
+         (before-save . lsp-organize-imports))
+  :bind (("C-c d" . lsp-describe-thing-at-point)
+         ("C-c e n" . flymake-goto-next-error)
+         ("C-c e p" . flymake-goto-prev-error)
+         ("C-c e r" . lsp-find-references)
+         ("C-c e R" . lsp-rename)
+         ("C-c e i" . lsp-find-implementation)
+         ("C-c e t" . lsp-find-type-definition)))
+(global-set-key "\C-ck" #'compile)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; pep8
@@ -261,16 +301,23 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; custom set
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(progn(require 'comint)
+      (define-key comint-mode-map (kbd "<up>") 'comint-previous-input)
+      (define-key comint-mode-map (kbd "<down>") 'comint-next-input))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-enabled-themes '(clarity))
+ '(custom-safe-themes
+   '("4c8372c68b3eab14516b6ab8233de2f9e0ecac01aaa859e547f902d27310c0c3" "1a094b79734450a146b0c43afb6c669045d7a8a5c28bc0210aba28d36f85d86f" "a455366c5cdacebd8adaa99d50e37430b0170326e7640a688e9d9ad406e2edfd" default))
  '(package-selected-packages
-   (quote
-    (markdown-mode swiper helm-projectile projectile helm magit go-mode json-mode elpy)))
+   '(helm-lsp which-key lsp-ui yasnippet flycheck use-package lsp-java powerline markdown-mode swiper helm-projectile projectile helm magit go-mode json-mode elpy))
  '(python-shell-interpreter "python3")
- '(setq-default fill-column t))
+ '(setq-default fill-column t)
+ '(show-paren-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
