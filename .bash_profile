@@ -539,12 +539,39 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 [[ -s "${HOME}/.gvm/scripts/gvm" ]] && source "${HOME}/.gvm/scripts/gvm"
 
 
-#### java version management
+#### jEnv - java version management
+# https://stackoverflow.com/questions/52524112/how-do-i-install-java-on-mac-osx-allowing-version-switching
+# Linux
+#   sdk install java 8.0.181-oracle; sdk install java 15-open 
+#   sdk use java 15-open
+# Mac
+#   brew update; brew tap adoptopenjdk/openjdk
+#   brew cask install adoptopenjdk8 adoptopenjdk11 adoptopenjdk
+#   jenv add /Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/
+#   jenv add /Library/Java/JavaVirtualMachines/adoptopenjdk-11.jdk/Contents/Home/
+#   /usr/libexec/java_home -V; 
+#   $ jenv enable-plugin export
+#   $ jenv global 11; java -version
+
+
+# default to Java 11
 export JAVA_8_HOME=$(/usr/libexec/java_home -v1.8)
+export JAVA_9_HOME=$(/usr/libexec/java_home -v9)
+export JAVA_10_HOME=$(/usr/libexec/java_home -v10)
 export JAVA_11_HOME=$(/usr/libexec/java_home -v11)
+export JAVA_12_HOME=$(/usr/libexec/java_home -v12)
+export JAVA_13_HOME=$(/usr/libexec/java_home -v13)
+export JAVA_14_HOME=$(/usr/libexec/java_home -v14)
+export JAVA_15_HOME=$(/usr/libexec/java_home -v15)
 
 alias java8='export JAVA_HOME=$JAVA_8_HOME'
+alias java9='export JAVA_HOME=$JAVA_9_HOME'
+alias java10='export JAVA_HOME=$JAVA_10_HOME'
 alias java11='export JAVA_HOME=$JAVA_11_HOME'
+alias java12='export JAVA_HOME=$JAVA_12_HOME'
+alias java13='export JAVA_HOME=$JAVA_13_HOME'
+alias java14='export JAVA_HOME=$JAVA_14_HOME'
+alias java15='export JAVA_HOME=$JAVA_15_HOME'
 
 # default to Java 11
 java11
