@@ -434,7 +434,7 @@ fi
 
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-#### PYTHON version management 
+#### PYTHON version management
 # https://www.tecmint.com/pyenv-install-and-manage-multiple-python-versions-in-linux/
 #
 # $ git clone https://github.com/pyenv/pyenv.git $HOME/.pyenv
@@ -467,7 +467,9 @@ if command -v pyenv 1>/dev/null 2>&1; then
     echo "Python versions management - pyenv"
     eval "$(pyenv init -)"
 fi
-if which pyenv-virtualenv-init >/dev/null; then eval "$(pyenv virtualenv-init -)"; fi
+if pyenv virtualenvs 1>/dev/null 2>&1; then
+    eval "$(pyenv virtualenv-init -)"
+fi
 
 
 #### Node versions management
