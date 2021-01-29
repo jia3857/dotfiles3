@@ -503,3 +503,8 @@ eval "$(jenv init -)"
 ## 3: configure maven to work with the Java version specified by jEnv
 ## $ echo 'JAVA_HOME=$(/usr/libexec/java_home -v $(jenv version-name))' >> ~/.mavenrc
 ## $ source ~/.mavenrc
+source /root/workspace/src/github.infra.cloudera.com/Sense/cloudera-sense/bin/bashrc.cdsw
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="/root/.sdkman"
+[[ -s "/root/.sdkman/bin/sdkman-init.sh" ]] && source "/root/.sdkman/bin/sdkman-init.sh"

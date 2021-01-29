@@ -386,13 +386,13 @@ _my_java_jdb() {
 }
 # Maven
 _my_maven3_install() {
-    wget http://www-eu.apache.org/dist/maven/maven-3/3.2.5/binaries/apache-maven-3.2.5-bin.tar.gz
-    sudo tar -xvzf apache-maven-3.2.5-bin.tar.gz -C /opt
-    sudo ln -s /opt/{apache-maven-3.2.5,maven}
+    local VERSION=${1:-"3.5.4"}
+    wget http://www-eu.apache.org/dist/maven/maven-3/${VERSION}/binaries/apache-maven-${VERSION}-bin.tar.gz
+    sudo tar -xvzf apache-maven-${VERSION}-bin.tar.gz -C /opt
+    sudo ln -s /opt/{apache-maven-${VERSION},maven}
     cat >> /etc/profile.d/mavenenv.sh <<EOF
 export M2_HOME=/opt/maven
 export PATH=\${M2_HOME}/bin:\${PATH}
-
 EOF
     sudo chmod +x /etc/profile.d/mavenenv.sh
     source /etc/profile.d/mavenenv.sh
